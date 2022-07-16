@@ -16,8 +16,15 @@
           />
         </div>
         <div class="game-create__btns">
-          <button type="button" class="btn btn--main">random</button>
-          <button type="button" class="btn btn--main" :disabled="!isReady">
+          <button type="button" class="btn btn--main" @click="setSetupRandom">
+            random
+          </button>
+          <button
+            type="button"
+            class="btn btn--main"
+            @click="createGame"
+            :disabled="!isReady"
+          >
             play
           </button>
         </div>
@@ -58,7 +65,6 @@ export default {
   },
   data() {
     return {
-      isReady2: false,
       active: null,
       counter: 0,
       ships: [],
@@ -104,6 +110,7 @@ export default {
     },
   },
   methods: {
+    createGame() {},
     setActive(id) {
       this.active = id;
     },
@@ -114,14 +121,70 @@ export default {
         return null;
       }
     },
-    getRandom() {
-      return {
-        x: Math.floor(Math.random() * 10),
-        y: Math.floor(Math.random() * 10),
-      };
-    },
     getIndex(key, id) {
       return this.areas[key].ships.findIndex((item) => item === id);
+    },
+    setSetupRandom() {
+      this.resetSetup();
+      for (const key in this.shipsTypes) {
+        for (let i = 0; i < this.shipsTypes[key].total; i++) {
+          this.counter += 1;
+          this.shipsTypes[key].available -= 1;
+          const ship = this.createShip(
+            this.counter,
+            key,
+            this.shipsTypes[key].deck
+          );
+          this.ships.push(ship);
+          this.setShipRandom(ship);
+        }
+      }
+      this.active = this.counter;
+    },
+    resetSetup() {
+      this.ships.forEach((ship) => this.clearAreas(ship));
+      this.ships = [];
+      this.counter = 0;
+      for (const key in this.shipsTypes) {
+        this.shipsTypes[key].available = this.shipsTypes[key].total;
+      }
+    },
+    setPosition(ship, x, y) {
+      ship.axisX = x;
+      ship.axisY = y;
+    },
+    setPositionRandom(ship) {
+      let choices = ["hr", "vr"];
+      ship.orientation = choices[Math.floor(Math.random() * choices.length)];
+      ship.axisX = Math.floor(Math.random() * 10);
+      ship.axisY = Math.floor(Math.random() * 10);
+    },
+    movePosition(ship, x, y) {
+      this.clearAreas(ship);
+      this.setPosition(ship, x, y);
+      this.setShipAreas(ship);
+      this.setAreas(ship);
+      this.checkPosition();
+    },
+    checkPosition() {
+      this.ships.forEach((ship) => {
+        let hasError = false;
+        ship.areas.forEach((area) => {
+          if (!area.key && area.status === "filled") {
+            hasError = true;
+            return;
+          }
+          if (
+            area.key &&
+            area.status === "filled" &&
+            this.areas[area.key].ships.length > 1
+          ) {
+            hasError = true;
+            return;
+          }
+        });
+        ship.error = hasError;
+      });
     },
     createAreas() {
       for (let x = 0; x < axisLegend.length; x++) {
@@ -155,22 +218,6 @@ export default {
         }
       });
     },
-    checkPosition() {
-      this.ships.forEach((ship) => {
-        let hasError = false;
-        ship.areas.forEach((area) => {
-          if (
-            area.key &&
-            area.status === "filled" &&
-            this.areas[area.key].ships.length > 1
-          ) {
-            hasError = true;
-            return;
-          }
-        });
-        ship.error = hasError;
-      });
-    },
     createShip(id, name, deck) {
       const shipAreas = [];
       for (let i = 0; i < deck * 3 + 6; i++) {
@@ -199,10 +246,10 @@ export default {
         }
       }
     },
-    resetShipArea(area) {
+    resetShipArea(area, status) {
       area.axisX = null;
       area.axisY = null;
-      area.status = "empty";
+      area.status = status || "empty";
       area.key = null;
     },
     setShipAreas(ship) {
@@ -216,7 +263,7 @@ export default {
               ship.areas[i].status = "filled";
               ship.areas[i].key = this.getKey(ship.axisX + i, ship.axisY);
             } else {
-              this.resetShipArea(ship.areas[i]);
+              this.resetShipArea(ship.areas[i], "filled");
             }
             if (this.getKey(ship.axisX + i, ship.axisY - 1)) {
               ship.areas[i + ship.deck].axisX = ship.axisX + i;
@@ -276,7 +323,7 @@ export default {
               ship.areas[i].status = "filled";
               ship.areas[i].key = this.getKey(ship.axisX, ship.axisY + i);
             } else {
-              this.resetShipArea(ship.areas[i]);
+              this.resetShipArea(ship.areas[i], "filled");
             }
             if (this.getKey(ship.axisX - 1, ship.axisY + i)) {
               ship.areas[i + ship.deck].axisX = ship.axisX - 1;
@@ -330,13 +377,15 @@ export default {
           break;
       }
     },
-    movePosition(ship, x, y) {
+    setShipRandom(ship) {
       this.clearAreas(ship);
-      ship.axisX = x;
-      ship.axisY = y;
+      this.setPositionRandom(ship);
       this.setShipAreas(ship);
       this.setAreas(ship);
       this.checkPosition();
+      if (ship.error) {
+        this.setShipRandom(ship);
+      }
     },
     rotateShip(ship) {
       switch (ship.orientation) {
