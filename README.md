@@ -1,6 +1,6 @@
-# practice-oop
+# battleship
 
-SOLID practice
+battleship game
 
 ## Project setup
 ```

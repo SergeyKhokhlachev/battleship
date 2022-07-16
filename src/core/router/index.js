@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import StartView from "@views/StartView";
-import CharacterCreate from "@views/CharacterCreate";
+import GameCreate from "@views/GameCreate";
 
 const routes = [
   {
@@ -11,7 +11,7 @@ const routes = [
   {
     path: "/create",
     name: "create",
-    component: CharacterCreate,
+    component: GameCreate,
   },
 ];
 

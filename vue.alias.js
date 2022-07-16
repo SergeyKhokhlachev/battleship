@@ -8,7 +8,7 @@ const alias = {
   "@public": path.join(__dirname, "./public"),
 
   // system
-  "@entity": path.join(__dirname, "./src/core/entity"),
+  "@class": path.join(__dirname, "./src/core/class"),
   "@enum": path.join(__dirname, "./src/core/enum"),
   "@filter": path.join(__dirname, "./src/core/filter"),
   "@layout": path.join(__dirname, "./src/core/layout"),

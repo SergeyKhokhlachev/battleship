@@ -6,4 +6,16 @@ import store from "@store";
 // common style
 import "@style/style.scss";
 
-createApp(App).use(store).use(router).mount("#app");
+// directive
+import VueClickAway from "vue3-click-away";
+
+// axios
+import axios from "axios";
+import VueAxios from "vue-axios";
+
+createApp(App)
+  .use(store)
+  .use(router)
+  .use(VueAxios, axios)
+  .use(VueClickAway)
+  .mount("#app");

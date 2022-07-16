@@ -5,7 +5,7 @@
       type="button"
       @click="this.$router.push({ name: 'create' })"
     >
-      New Character
+      New Game
     </button>
     <button
       class="start-view__btn btn btn--main"
@@ -13,7 +13,7 @@
       :disabled="!load"
       @click="this.$router.push({ name: 'create' })"
     >
-      Load Character
+      Load Game
     </button>
   </div>
 </template>

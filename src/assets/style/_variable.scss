@@ -1,8 +1,11 @@
 $font-size: 16px;
-$text-color: #333;
+$text-color: #263238;
 $text-color-muted: #828282;
-$color-main: #f4511e;
-$color-main-muted: #bf360c;
+$color-main: #ff5722;
+$color-main-muted: #e64a19;
+$color-main-active: #bf360c;
+$color-sub: #303f9f;
+$color-disabled: #cfd8dc;
 
 @mixin respond($breakpoint) {
   @if $breakpoint == screen-xxl {
