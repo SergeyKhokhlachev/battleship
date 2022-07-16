@@ -1,0 +1,36 @@
+$font-size: 16px;
+$text-color: #263238;
+$text-color-muted: #828282;
+$color-main: #ff5722;
+$color-main-muted: #e64a19;
+$color-main-active: #bf360c;
+$color-sub: #303f9f;
+$color-disabled: #cfd8dc;
+
+@mixin respond($breakpoint) {
+  @if $breakpoint == screen-xxl {
+    @media (min-width: 1460px) {
+      @content;
+    }
+  }
+  @if $breakpoint == screen-xl {
+    @media (min-width: 1200px) {
+      @content;
+    }
+  }
+  @if $breakpoint == screen-lg {
+    @media (min-width: 992px) {
+      @content;
+    }
+  }
+  @if $breakpoint == screen-md {
+    @media (min-width: 768px) {
+      @content;
+    }
+  }
+  @if $breakpoint == screen-sm {
+    @media (min-width: 576px) {
+      @content;
+    }
+  }
+}
