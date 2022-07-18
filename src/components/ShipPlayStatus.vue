@@ -36,6 +36,7 @@ export default {
     height: 20px;
     margin-right: 1px;
     background-color: $color-sub;
+    transition: background-color 0.2s ease-in-out;
   }
   &.damaged {
     .ship-play-status__area {

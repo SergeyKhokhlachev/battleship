@@ -1,7 +1,7 @@
 <template>
   <div class="game-create">
     <div class="game-create__head">
-      <h1 class="page-title">Set ships position</h1>
+      <h1 class="page-title">New Game</h1>
     </div>
     <div class="game-create__box">
       <div class="game-create__control">
@@ -72,10 +72,12 @@ export default {
       active: null,
       counter: 0,
       user: {
+        name: "user",
         areas: {},
         ships: [],
       },
       opponent: {
+        name: "opponent",
         areas: {},
         ships: [],
       },
@@ -497,19 +499,33 @@ export default {
     margin-bottom: 40px;
   }
   &__control {
-    padding: 50px 0;
-    margin-right: 40px;
+    padding: 30px 0;
+    margin-right: 30px;
+    @include respond(screen-xxl) {
+      padding: 50px 0;
+      margin-right: 40px;
+    }
   }
   &__list {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
+    @include respond(screen-xxl) {
+      margin-bottom: 40px;
+    }
   }
   &__btns {
     display: flex;
     justify-content: center;
-    margin: 0 -10px 30px;
+    margin: 0 -5px 20px;
+    @include respond(screen-xxl) {
+      margin: 0 -10px 30px;
+    }
     .btn {
-      width: 116px;
-      margin: 0 10px;
+      width: 105px;
+      margin: 0 5px;
+      @include respond(screen-xxl) {
+        width: 116px;
+        margin: 0 10px;
+      }
     }
   }
 }

@@ -63,18 +63,28 @@ export default {
 .ship-setup-control {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  @include respond(screen-xxl) {
+    margin-bottom: 20px;
+  }
   &__vue {
     display: flex;
-    width: 124px;
+    width: 110px;
     margin-right: 10px;
+    @include respond(screen-xxl) {
+      width: 124px;
+    }
   }
   &__deck {
     flex-shrink: 0;
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     margin-right: 1px;
     background-color: $color-sub;
+    @include respond(screen-xxl) {
+      width: 30px;
+      height: 30px;
+    }
   }
   &__status {
     color: $text-color-muted;
@@ -87,8 +97,8 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     padding: 0;
     color: #ffffff;
     font-size: 1.4rem;
@@ -109,6 +119,10 @@ export default {
     &[disabled] {
       background-color: $color-disabled;
       cursor: default;
+    }
+    @include respond(screen-xxl) {
+      width: 30px;
+      height: 30px;
     }
   }
 }

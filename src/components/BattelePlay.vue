@@ -28,9 +28,13 @@ export default {
 .battele-play {
   display: grid;
   grid-auto-rows: 1fr;
-  grid-template-columns: repeat(10, 40px);
-  grid-template-rows: repeat(10, 40px);
+  grid-template-columns: repeat(10, 30px);
+  grid-template-rows: repeat(10, 30px);
   gap: 0px 0px;
+  @include respond(screen-xxl) {
+    grid-template-columns: repeat(10, 40px);
+    grid-template-rows: repeat(10, 40px);
+  }
   &__area {
     display: flex;
     align-items: center;
@@ -43,9 +47,6 @@ export default {
       font-size: 1.2rem;
       opacity: 0;
       transition: opacity 0.2s ease-in-out;
-    }
-    &.filled {
-      background-color: $color-sub;
     }
     &.shot {
       background-color: rgba($color: $color-sub, $alpha: 0.1);
@@ -64,6 +65,12 @@ export default {
       cursor: default;
       &.filled {
         background-color: $color-sub;
+      }
+      &.shot {
+        &.filled {
+          color: $color-disabled;
+          background-color: $color-main;
+        }
       }
     }
   }

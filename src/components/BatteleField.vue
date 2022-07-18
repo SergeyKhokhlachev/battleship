@@ -2,12 +2,12 @@
   <div class="battele-field">
     <div class="battele-field__legend battele-field__legend--axisX">
       <div v-for="item in axis" :key="item" class="battele-field__cell">
-        {{ item.x }}
+        {{ item.y }}
       </div>
     </div>
     <div class="battele-field__legend battele-field__legend--axisY">
       <div v-for="item in axis" :key="item" class="battele-field__cell">
-        {{ item.y }}
+        {{ item.x }}
       </div>
     </div>
     <div class="battele-field__wrap">
@@ -38,9 +38,13 @@ export default {
 .battele-field {
   display: grid;
   grid-auto-rows: 1fr;
-  grid-template-columns: repeat(11, 40px);
-  grid-template-rows: repeat(11, 40px);
+  grid-template-columns: repeat(11, 30px);
+  grid-template-rows: repeat(11, 30px);
   gap: 0px 0px;
+  @include respond(screen-xxl) {
+    grid-template-columns: repeat(11, 40px);
+    grid-template-rows: repeat(11, 40px);
+  }
   &__wrap {
     position: relative;
     grid-column: 2 / 12;
@@ -64,15 +68,23 @@ export default {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
+    @include respond(screen-xxl) {
+      width: 40px;
+      height: 40px;
+    }
   }
   &__table {
     display: grid;
     grid-auto-rows: 1fr;
-    grid-template-columns: repeat(10, 40px);
-    grid-template-rows: repeat(10, 40px);
+    grid-template-columns: repeat(10, 30px);
+    grid-template-rows: repeat(10, 30px);
     gap: 0;
+    @include respond(screen-xxl) {
+      grid-template-columns: repeat(10, 40px);
+      grid-template-rows: repeat(10, 40px);
+    }
     .battele-field__cell {
       outline: 1px solid rgba($color: $color-sub, $alpha: 0.1);
     }
