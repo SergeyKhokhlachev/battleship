@@ -44,6 +44,9 @@ export default {
       opacity: 0;
       transition: opacity 0.2s ease-in-out;
     }
+    &.filled {
+      background-color: $color-sub;
+    }
     &.shot {
       background-color: rgba($color: $color-sub, $alpha: 0.1);
       cursor: default;

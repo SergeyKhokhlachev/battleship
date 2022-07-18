@@ -105,28 +105,24 @@ export default {
   },
   computed: {
     isReady() {
-      let gameReady = true;
       if (this.user.ships.length === 10) {
-        this.user.ships.forEach((ship) => {
-          if (ship.error === true) {
-            gameReady = false;
-            return;
-          }
-        });
+        return this.user.ships.every((ship) => !ship.error);
       } else {
-        gameReady = false;
+        return false;
       }
-      return gameReady;
     },
   },
   methods: {
     createGame() {
       this.createAreas(this.opponent);
       this.setSetupRandom(this.opponent);
+      this.prepareData(this.user);
+      this.prepareData(this.opponent);
       this.$store.dispatch("SET_USER", this.user);
       this.$store.dispatch("SET_OPPONENT", this.opponent);
       this.$router.push({ name: "play" });
     },
+
     getKey(x, y) {
       if (axisLegend[x] && axisLegend[y]) {
         return axisLegend[x].x + axisLegend[y].y;
@@ -159,6 +155,11 @@ export default {
       }
       this.active = this.counter;
     },
+    prepareData(player) {
+      player.ships.forEach((ship) => {
+        ship.areas = ship.areas.filter((area) => area.status === "filled");
+      });
+    },
 
     setPosition(ship, x, y) {
       ship.axisX = x;
@@ -172,22 +173,15 @@ export default {
     },
     checkPosition(player) {
       player.ships.forEach((ship) => {
-        let hasError = false;
-        ship.areas.forEach((area) => {
-          if (!area.key && area.status === "filled") {
-            hasError = true;
-            return;
-          }
-          if (
-            area.key &&
-            area.status === "filled" &&
-            player.areas[area.key].ships.length > 1
-          ) {
-            hasError = true;
-            return;
+        ship.error = ship.areas.some((area) => {
+          const filled = area.status === "filled";
+          const length = area.key
+            ? player.areas[area.key].ships.length > 1
+            : false;
+          if ((!area.key && filled) || (area.key && filled && length)) {
+            return true;
           }
         });
-        ship.error = hasError;
       });
     },
 

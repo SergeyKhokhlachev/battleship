@@ -9,6 +9,7 @@
           <ship-play-status
             v-for="ship in user.ships"
             :areas="ship.areas"
+            :status="ship.status"
             :key="ship.id"
           />
         </div>
@@ -35,6 +36,7 @@
             class="ship-play-status--reverce"
             v-for="ship in opponent.ships"
             :areas="ship.areas"
+            :status="ship.status"
             :key="ship.id"
           />
         </div>
@@ -76,10 +78,31 @@ export default {
     },
   },
   methods: {
+    setShipStatus(player, key) {
+      player.ships.forEach((ship) => {
+        ship.areas.forEach((area) => {
+          if (area.key === key) {
+            area.shot = true;
+            ship.status = "damaged";
+          }
+        });
+      });
+    },
+    updateShipStatus(player) {
+      player.ships.forEach((ship) => {
+        if (ship.areas.every((area) => area.shot)) {
+          ship.status = "destroyed";
+        }
+      });
+    },
     setTurn(player, key) {
       if (player.areas[key].shot === false) {
         this.game.turn += 1;
         player.areas[key].shot = true;
+        if (player.areas[key].status === "filled") {
+          this.setShipStatus(player, key);
+          this.updateShipStatus(player);
+        }
       }
     },
     shot(key) {

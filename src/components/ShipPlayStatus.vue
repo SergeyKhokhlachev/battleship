@@ -1,5 +1,5 @@
 <template>
-  <div class="ship-play-status">
+  <div :class="['ship-play-status', status]">
     <div class="ship-play-status__box">
       <template v-for="area in areas" :key="area.key">
         <div
@@ -16,6 +16,7 @@ export default {
   name: "ShipPlayStatus",
   props: {
     areas: Array,
+    status: String,
   },
   computed: {},
 };
@@ -35,8 +36,19 @@ export default {
     height: 20px;
     margin-right: 1px;
     background-color: $color-sub;
-    &.shot {
-      background-color: $color-error;
+  }
+  &.damaged {
+    .ship-play-status__area {
+      &.shot {
+        background-color: $color-main;
+      }
+    }
+  }
+  &.destroyed {
+    .ship-play-status__area {
+      &.shot {
+        background-color: $color-main-active;
+      }
     }
   }
   &--reverce {
