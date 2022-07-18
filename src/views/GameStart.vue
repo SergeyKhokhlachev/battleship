@@ -20,7 +20,7 @@
 
 <script>
 export default {
-  name: "StartView",
+  name: "GameStart",
   data() {
     return {
       load: false,

@@ -48,13 +48,12 @@ export default {
       return this.available >= this.total;
     },
   },
-
   methods: {
     append() {
-      this.$emit("appendShip", this.name, this.deck, this.available - 1);
+      this.$emit("append", this.name, this.deck, this.available - 1);
     },
     remove() {
-      this.$emit("removeShip", this.name, this.available + 1);
+      this.$emit("remove", this.name, this.available + 1);
     },
   },
 };

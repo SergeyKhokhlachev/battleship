@@ -2,7 +2,7 @@
   <div
     class="ship-setup-vue"
     :style="{
-      gridArea: `${axisY} / ${axisX} / ${endY} / ${endX}`,
+      gridArea: `${axisX} / ${axisY} / ${endX} / ${endY}`,
     }"
   ></div>
 </template>

@@ -1,6 +1,6 @@
 # battleship
 
-battleship game
+Battleship simple game (vue js + grid css) 
 
 ## Project setup
 ```

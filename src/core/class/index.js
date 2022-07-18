@@ -6,8 +6,8 @@ class Ship {
     this.axisX = axisX || 0;
     this.axisY = axisY || 0;
     this.areas = areas || []; // new ShipArea;
-    this.orientation = orientation || "hr"; // hr || vr;
-    this.status = status || "whole"; // whole || injured || destroyed;
+    this.orientation = orientation || "vr"; // hr || vr;
+    this.status = status || "hidden"; // hidden || damaged || destroyed;
     this.error = error || false;
   }
 }
@@ -22,4 +22,12 @@ class ShipArea {
   }
 }
 
-export { Ship, ShipArea };
+class Area {
+  constructor(status, shot, ships) {
+    this.status = status || "empty";
+    this.shot = shot || false;
+    this.ships = ships || [];
+  }
+}
+
+export { Ship, ShipArea, Area };

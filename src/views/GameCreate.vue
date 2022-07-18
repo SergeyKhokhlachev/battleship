@@ -11,12 +11,16 @@
             v-bind="type"
             :name="name"
             :key="type.deck"
-            @append-ship="appendShip"
-            @remove-ship="removeShip"
+            @append="append"
+            @remove="remove"
           />
         </div>
         <div class="game-create__btns">
-          <button type="button" class="btn btn--main" @click="setSetupRandom">
+          <button
+            type="button"
+            class="btn btn--main"
+            @click="setSetupRandom(user)"
+          >
             random
           </button>
           <button
@@ -38,9 +42,9 @@
       <battele-field>
         <template #default>
           <battele-setup
-            :ships="ships"
+            :ships="user.ships"
             :active="active"
-            @set-active="setActive"
+            @set-active="setShipActive"
           />
         </template>
       </battele-field>
@@ -54,7 +58,7 @@ import BatteleField from "@components/BatteleField";
 import BatteleSetup from "@components/BatteleSetup";
 
 import { axisLegend } from "@enum";
-import { Ship, ShipArea } from "@class";
+import { Ship, ShipArea, Area } from "@class";
 
 export default {
   name: "GameCreate",
@@ -67,8 +71,14 @@ export default {
     return {
       active: null,
       counter: 0,
-      ships: [],
-      areas: {},
+      user: {
+        areas: {},
+        ships: [],
+      },
+      opponent: {
+        areas: {},
+        ships: [],
+      },
       shipsTypes: {
         battleship: {
           deck: 4,
@@ -96,8 +106,8 @@ export default {
   computed: {
     isReady() {
       let gameReady = true;
-      if (this.ships.length === 10) {
-        this.ships.forEach((ship) => {
+      if (this.user.ships.length === 10) {
+        this.user.ships.forEach((ship) => {
           if (ship.error === true) {
             gameReady = false;
             return;
@@ -110,9 +120,12 @@ export default {
     },
   },
   methods: {
-    createGame() {},
-    setActive(id) {
-      this.active = id;
+    createGame() {
+      this.createAreas(this.opponent);
+      this.setSetupRandom(this.opponent);
+      this.$store.dispatch("SET_USER", this.user);
+      this.$store.dispatch("SET_OPPONENT", this.opponent);
+      this.$router.push({ name: "play" });
     },
     getKey(x, y) {
       if (axisLegend[x] && axisLegend[y]) {
@@ -121,11 +134,16 @@ export default {
         return null;
       }
     },
-    getIndex(key, id) {
-      return this.areas[key].ships.findIndex((item) => item === id);
+    resetSetup(player) {
+      this.counter = 0;
+      player.ships.forEach((ship) => this.clearAreas(player, ship));
+      player.ships = [];
+      for (const key in this.shipsTypes) {
+        this.shipsTypes[key].available = this.shipsTypes[key].total;
+      }
     },
-    setSetupRandom() {
-      this.resetSetup();
+    setSetupRandom(player) {
+      this.resetSetup(player);
       for (const key in this.shipsTypes) {
         for (let i = 0; i < this.shipsTypes[key].total; i++) {
           this.counter += 1;
@@ -135,20 +153,13 @@ export default {
             key,
             this.shipsTypes[key].deck
           );
-          this.ships.push(ship);
-          this.setShipRandom(ship);
+          player.ships.push(ship);
+          this.setShipPositionRandom(player, ship);
         }
       }
       this.active = this.counter;
     },
-    resetSetup() {
-      this.ships.forEach((ship) => this.clearAreas(ship));
-      this.ships = [];
-      this.counter = 0;
-      for (const key in this.shipsTypes) {
-        this.shipsTypes[key].available = this.shipsTypes[key].total;
-      }
-    },
+
     setPosition(ship, x, y) {
       ship.axisX = x;
       ship.axisY = y;
@@ -159,15 +170,8 @@ export default {
       ship.axisX = Math.floor(Math.random() * 10);
       ship.axisY = Math.floor(Math.random() * 10);
     },
-    movePosition(ship, x, y) {
-      this.clearAreas(ship);
-      this.setPosition(ship, x, y);
-      this.setShipAreas(ship);
-      this.setAreas(ship);
-      this.checkPosition();
-    },
-    checkPosition() {
-      this.ships.forEach((ship) => {
+    checkPosition(player) {
+      player.ships.forEach((ship) => {
         let hasError = false;
         ship.areas.forEach((area) => {
           if (!area.key && area.status === "filled") {
@@ -177,7 +181,7 @@ export default {
           if (
             area.key &&
             area.status === "filled" &&
-            this.areas[area.key].ships.length > 1
+            player.areas[area.key].ships.length > 1
           ) {
             hasError = true;
             return;
@@ -186,71 +190,66 @@ export default {
         ship.error = hasError;
       });
     },
-    createAreas() {
+
+    createAreas(player) {
       for (let x = 0; x < axisLegend.length; x++) {
         for (let y = 0; y < axisLegend.length; y++) {
-          this.areas[this.getKey(x, y)] = {
-            status: "empty",
-            shot: false,
-            ships: [],
-          };
+          player.areas[this.getKey(x, y)] = new Area();
         }
       }
     },
-    setAreas(ship) {
+    setAreas(player, ship) {
       ship.areas.forEach((area) => {
         if (area.key) {
-          this.areas[area.key].status = area.status;
-          this.areas[area.key].ships.push(ship.id);
+          if (player.areas[area.key].ships.length === 0) {
+            player.areas[area.key].status = area.status;
+          }
+          player.areas[area.key].ships.push(ship.id);
         }
       });
     },
-    clearAreas(ship) {
+    clearAreas(player, ship) {
       ship.areas.forEach((area) => {
         if (area.key) {
-          this.areas[area.key].ships.splice(
-            this.getIndex(area.key, ship.id),
+          player.areas[area.key].ships.splice(
+            player.areas[area.key].ships.findIndex((item) => item === ship.id),
             1
           );
-          if (this.areas[area.key].ships.length === 0) {
-            this.areas[area.key].status = "empty";
+          if (player.areas[area.key].ships.length === 0) {
+            player.areas[area.key].status = "empty";
           }
         }
       });
     },
+
     createShip(id, name, deck) {
-      const shipAreas = [];
+      const areas = [];
       for (let i = 0; i < deck * 3 + 6; i++) {
-        shipAreas.push(new ShipArea());
+        areas.push(new ShipArea());
       }
-      return new Ship(id, name, deck, 0, 0, shipAreas);
+      return new Ship(id, name, deck, 0, 0, areas);
     },
-    appendShip(name, deck, available) {
+    appendShip(player, name, deck) {
       this.counter += 1;
       this.active = this.counter;
-      this.shipsTypes[name].available = available;
       const ship = this.createShip(this.counter, name, deck);
-      this.ships.push(ship);
+      player.ships.push(ship);
       this.setShipAreas(ship);
-      this.setAreas(ship);
-      this.checkPosition();
+      this.setAreas(player, ship);
+      this.checkPosition(player);
     },
-    removeShip(name, available) {
-      this.shipsTypes[name].available = available;
-      for (let i = this.ships.length - 1; i >= 0; i--) {
-        if (this.ships[i].name === name) {
-          this.clearAreas(this.ships[i]);
-          this.ships.splice(i, 1);
-          this.checkPosition();
+    removeShip(player, name) {
+      for (let i = player.ships.length - 1; i >= 0; i--) {
+        if (player.ships[i].name === name) {
+          this.clearAreas(player, player.ships[i]);
+          player.ships.splice(i, 1);
+          this.checkPosition(player);
           return;
         }
       }
     },
-    resetShipArea(area, status) {
-      area.axisX = null;
-      area.axisY = null;
-      area.status = status || "empty";
-      area.key = null;
+    setShipActive(id) {
+      this.active = id;
     },
     setShipAreas(ship) {
       const n = [-1, 0, 1];
@@ -377,80 +376,103 @@ export default {
           break;
       }
     },
-    setShipRandom(ship) {
-      this.clearAreas(ship);
+    resetShipArea(area, status) {
+      area.axisX = null;
+      area.axisY = null;
+      area.status = status || "empty";
+      area.key = null;
+    },
+    setShipPosition(player, ship, x, y) {
+      this.clearAreas(player, ship);
+      this.setPosition(ship, x, y);
+      this.setShipAreas(ship);
+      this.setAreas(player, ship);
+      this.checkPosition(player);
+    },
+    setShipPositionRandom(player, ship) {
+      this.clearAreas(player, ship);
       this.setPositionRandom(ship);
       this.setShipAreas(ship);
-      this.setAreas(ship);
-      this.checkPosition();
+      this.setAreas(player, ship);
+      this.checkPosition(player);
       if (ship.error) {
-        this.setShipRandom(ship);
+        this.setShipPositionRandom(player, ship);
       }
     },
-    rotateShip(ship) {
+
+    append(name, deck, available) {
+      this.shipsTypes[name].available = available;
+      this.appendShip(this.user, name, deck);
+    },
+    remove(name, available) {
+      this.shipsTypes[name].available = available;
+      this.removeShip(this.user, name);
+    },
+
+    rotate(ship) {
       switch (ship.orientation) {
         case "hr":
           if (ship.axisY + ship.deck <= 10) {
             ship.orientation = "vr";
-            this.movePosition(ship, ship.axisX, ship.axisY);
+            this.setShipPosition(this.user, ship, ship.axisX, ship.axisY);
           }
           break;
         case "vr":
           if (ship.axisX + ship.deck <= 10) {
             ship.orientation = "hr";
-            this.movePosition(ship, ship.axisX, ship.axisY);
+            this.setShipPosition(this.user, ship, ship.axisX, ship.axisY);
           }
           break;
       }
     },
-    moveShip(ship, direction) {
+    move(ship, direction) {
       switch (direction) {
-        case "left":
-          if (ship.axisX > 0) {
-            this.movePosition(ship, ship.axisX - 1, ship.axisY);
-          }
-          break;
-        case "right":
-          if (ship.orientation === "hr" && ship.axisX + ship.deck <= 9) {
-            this.movePosition(ship, ship.axisX + 1, ship.axisY);
-          }
-          if (ship.orientation === "vr" && ship.axisX < 9) {
-            this.movePosition(ship, ship.axisX + 1, ship.axisY);
-          }
-          break;
         case "up":
-          if (ship.axisY > 0) {
-            this.movePosition(ship, ship.axisX, ship.axisY - 1);
+          if (ship.axisX > 0) {
+            this.setShipPosition(this.user, ship, ship.axisX - 1, ship.axisY);
           }
           break;
         case "down":
+          if (ship.orientation === "hr" && ship.axisX + ship.deck <= 9) {
+            this.setShipPosition(this.user, ship, ship.axisX + 1, ship.axisY);
+          }
+          if (ship.orientation === "vr" && ship.axisX < 9) {
+            this.setShipPosition(this.user, ship, ship.axisX + 1, ship.axisY);
+          }
+          break;
+        case "left":
+          if (ship.axisY > 0) {
+            this.setShipPosition(this.user, ship, ship.axisX, ship.axisY - 1);
+          }
+          break;
+        case "right":
           if (ship.orientation === "hr" && ship.axisY < 9) {
-            this.movePosition(ship, ship.axisX, ship.axisY + 1);
+            this.setShipPosition(this.user, ship, ship.axisX, ship.axisY + 1);
           }
           if (ship.orientation === "vr" && ship.axisY + ship.deck <= 9) {
-            this.movePosition(ship, ship.axisX, ship.axisY + 1);
+            this.setShipPosition(this.user, ship, ship.axisX, ship.axisY + 1);
           }
           break;
       }
     },
     keydown(event) {
       if (this.active) {
-        const ship = this.ships.find((item) => item.id === this.active);
+        const ship = this.user.ships.find((item) => item.id === this.active);
         switch (event.key) {
           case "Control":
-            this.rotateShip(ship);
+            this.rotate(ship);
             break;
           case "ArrowLeft":
-            this.moveShip(ship, "left");
+            this.move(ship, "left");
             break;
           case "ArrowRight":
-            this.moveShip(ship, "right");
+            this.move(ship, "right");
             break;
           case "ArrowUp":
-            this.moveShip(ship, "up");
+            this.move(ship, "up");
             break;
           case "ArrowDown":
-            this.moveShip(ship, "down");
+            this.move(ship, "down");
             break;
         }
       }
@@ -463,7 +485,7 @@ export default {
     document.removeEventListener("keydown", this.keydown);
   },
   created() {
-    this.createAreas();
+    this.createAreas(this.user);
   },
 };
 </script>

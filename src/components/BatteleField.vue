@@ -84,5 +84,21 @@ export default {
     width: 100%;
     height: 100%;
   }
+  &--reverce {
+    .battele-field__wrap {
+      grid-column: 1 / 11;
+      grid-row: 2 / 12;
+    }
+    .battele-field__legend {
+      &--axisX {
+        grid-column: 1 / 11;
+        grid-row: 1 / 1;
+      }
+      &--axisY {
+        grid-column: 11 / 12;
+        grid-row: 2 / 12;
+      }
+    }
+  }
 }
 </style>

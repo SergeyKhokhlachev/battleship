@@ -6,6 +6,8 @@ $color-main-muted: #e64a19;
 $color-main-active: #bf360c;
 $color-sub: #303f9f;
 $color-disabled: #cfd8dc;
+$color-error: #f44336;
+$color-sucess: #00796b;
 
 @mixin respond($breakpoint) {
   @if $breakpoint == screen-xxl {

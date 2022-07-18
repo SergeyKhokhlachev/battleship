@@ -41,17 +41,17 @@ export default {
   grid-template-rows: repeat(10, 40px);
   gap: 0px 0px;
   .ship-setup-vue {
-    background-color: #80cbc4;
+    background-color: lighten($color-sucess, 15%);
     transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
     cursor: pointer;
     &.error {
-      background-color: #ef9a9a;
+      background-color: lighten($color-error, 20%);
     }
     &.active {
-      background-color: #00796b;
+      background-color: $color-sucess;
       z-index: 10;
       &.error {
-        background-color: #f44336;
+        background-color: $color-error;
       }
     }
   }
